@@ -1,5 +1,7 @@
 package parse
 
+import "errors"
+
 type FieldMap struct{
 	Fields []Field
 }
@@ -7,7 +9,7 @@ type FieldMap struct{
 type Field struct{
 	Name string
 	Index int
-	Type interface{}
+	Type DataType
 }
 
 type RowData struct{}
@@ -28,4 +30,16 @@ func (fm *FieldMap) GetFields() []Field{
 // Add more fields
 func (fm *FieldMap) AddField(f Field) {
 	fm.Fields = append(fm.Fields, f)
+}
+
+// NewField creates a Field with validation
+func NewField(name string, index int, dataType DataType) (Field, error) {
+
+	if name == "" {
+		return Field{}, errors.New("Error creating Field: Field name cannot be emptry")
+	}
+	if index < 0 {
+		return Field{}, errors.New("Error creating Field: Field index cannot be less than zero")
+	}
+	return Field{Name: name, Index: index, Type: dataType}, nil
 }
