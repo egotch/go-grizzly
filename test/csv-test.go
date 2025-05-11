@@ -3,14 +3,16 @@ package test
 import (
 	"log"
 	"os"
-// 	"strings"
+
+	// 	"strings"
 
 	"bufio"
-	"github.com/egotch/go-grizzly/parse"
+
+	"github.com/egotch/go-grizzly/extract"
 )
 
 var (
-	fm parse.FieldMap
+	fm extract.FieldMap
 )
 
 
@@ -20,12 +22,22 @@ var (
 // "UserLoginName","AccountNumber","AccountType","RoutingNumber","CurrentBalance","AccountDescription"
 func setupFieldmap() {
 
-	field1, err := parse.NewField("UserLogin", 0, parse.StringType{})
-	if err != nil {
-		log.Panicf("Unable to generate field: %v", err)
-	}
+	var fields []extract.Field
 
-	log.Println(field1.Type.Name())
+	// UserName
+	userName, _ := extract.NewField("UserName", 0, extract.StringType{}, extract.AsCSV(","))
+	// UserEmail
+	email, _ := extract.NewField("Email", 1, extract.StringType{})
+	// UserPhone
+	phone, _ := extract.NewField("Phone", 2, extract.StringType{})
+	// Status
+	userStatus, _ := extract.NewField("IsActive", 3, extract.BoolType{})
+
+
+	// Assemble the fields
+	fields = append(fields, userName, email, phone, userStatus)
+	// Make field map
+	fm := extract.NewFieldMap(fields...)
 
 }
 

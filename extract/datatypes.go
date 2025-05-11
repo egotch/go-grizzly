@@ -1,7 +1,7 @@
 // library of types used in mapping fields
 // for file consumption
 
-package parse
+package extract
 
 import (
 	"fmt"

@@ -1,8 +1,9 @@
-package parse
+package extract
 
 import (
 	"bufio"
 	"os"
+	"encoding/csv"
 )
 
 // ParseDelimitted iterates over a delimitted file
@@ -20,6 +21,7 @@ func ParseDelimitted(fullPath string, delimiter string, fieldMap FieldMap) ([]Ro
 	}
 
 	// set up buffer for reading
+	csvReader := csv.NewReader(f_in)
 	inScanner := bufio.NewScanner(f_in)
 
 	for inScanner.Scan() {

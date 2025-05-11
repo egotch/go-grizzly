@@ -1,9 +1,11 @@
-package parse
+package extract
 
 import (
 	"errors"
 	"fmt"
 )
+
+type Option func(*Field)
 
 type FieldMap struct{
 	Fields []Field
@@ -13,15 +15,16 @@ type Field struct{
 	Name string
 	Index int
 	Type DataType
+	Delimiter string
 }
 
 type RowData struct{}
 
 // Contstructor for new FieldMap
 // returns a FieldMap
-func NewFieldMap(firstField Field, additionalFields ...Field) *FieldMap {
+func NewFieldMap(fields ...Field) *FieldMap {
 
-	allFields := append([]Field{firstField}, additionalFields...)
+	allFields := append([]Field{fields[0]}, fields[1:]...)
 	return &FieldMap{Fields: allFields}
 }
 
@@ -76,13 +79,35 @@ func (fm *FieldMap) GetFieldByIndex(inIdx int) (Field, bool) {
 }
 
 // NewField creates a Field with validation
-func NewField(name string, index int, dataType DataType) (Field, error) {
+func NewField(name string, dataType DataType, options ...Option) (Field, error) {
 
 	if name == "" {
 		return Field{}, errors.New("Error creating Field: Field name cannot be emptry")
 	}
+	//BUG: need to handle this in the WithIndex() option
 	if index < 0 {
 		return Field{}, errors.New("Error creating Field: Field index cannot be less than zero")
 	}
-	return Field{Name: name, Index: index, Type: dataType}, nil
+
+	f := Field{Name: name, Index: index, Type: dataType}
+
+	for _, option := range options{
+		option(&f)
+	}
+	
+	return f, nil
 }
+
+func WithIndex(i int) Option {
+	return func(f *Field) {
+		f.Index = i
+	}
+}
+
+func AsCSV(d string) Option {
+	return func(f *Field) {
+		f.Delimiter = d
+	}
+}
+
+
