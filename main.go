@@ -1,13 +1,12 @@
 package main
 
 import (
-	"github.com/egotch/go-grizzly/parse"
+	"github.com/egotch/go-grizzly/test"
 )
-
 
 func main() {
 
-	testCSV()
+	test.TestCSV()
 }
 
 
