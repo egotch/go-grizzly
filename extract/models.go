@@ -3,9 +3,11 @@ package extract
 import (
 	"errors"
 	"fmt"
+	"reflect"
+	"runtime"
 )
 
-type Option func(*Field)
+type Option func(*Field) error
 
 type FieldMap struct{
 	Fields []Field
@@ -14,6 +16,8 @@ type FieldMap struct{
 type Field struct{
 	Name string
 	Index int
+	Offset int
+	OffsetLen int
 	Type DataType
 	Delimiter string
 }
@@ -84,30 +88,51 @@ func NewField(name string, dataType DataType, options ...Option) (Field, error) 
 	if name == "" {
 		return Field{}, errors.New("Error creating Field: Field name cannot be emptry")
 	}
-	//BUG: need to handle this in the WithIndex() option
-	if index < 0 {
-		return Field{}, errors.New("Error creating Field: Field index cannot be less than zero")
-	}
 
-	f := Field{Name: name, Index: index, Type: dataType}
+	f := Field{Name: name, Type: dataType}
 
 	for _, option := range options{
-		option(&f)
+		err := option(&f)
+		if err != nil {
+			return f, fmt.Errorf("Failed to apply %v: %w", runtime.FuncForPC(reflect.ValueOf(option).Pointer()).Name(), err)
+		}
 	}
 	
 	return f, nil
 }
 
+// WithIndex specifies the index of the field (first is 0)
+// this is to be used with DELIMITED files where the delimiter
+// is later specified on the extraction engine.
+//
+// ex: someField = NewField("MyField", StringType{}, WithIndex(0))
 func WithIndex(i int) Option {
-	return func(f *Field) {
+	return func(f *Field) error {
 		f.Index = i
+
+		if f.Index < 0 {
+			return errors.New("Invalid index, cannot be less than zero")
+		}
+		return nil
 	}
 }
 
-func AsCSV(d string) Option {
-	return func(f *Field) {
-		f.Delimiter = d
+// WithOffset specifies the start char (position 1 = 1) of the field
+// followed by the length of the field.  This is to be used with
+// FIXED WIDTH files
+//
+// ex: someField = NewField("MyField", StringType{}, WithOffset(1, 15))
+func WithOffset(start int, length int) Option {
+	return func(f *Field) error {
+		f.Offset = start
+		f.OffsetLen = length
+
+		if f.Offset < 0 {
+			return errors.New("Invalid offset, cannot be less than zero")
+		}
+		return nil
 	}
 }
+
 
 
