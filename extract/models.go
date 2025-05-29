@@ -60,7 +60,7 @@ func (fm *FieldMap) AddField(f Field) error {
 // if the name passed in matches one of the fields
 // on FieldMap, then it is returned
 // if not, an empty Field is returned with False
-func (fm *FieldMap) GetFieldByName(inName string) (Field, bool) {
+func (fm *FieldMap) GetFieldByName(inName string) (field Field, found bool) {
 	for _, field := range fm.Fields{
 		if field.Name == inName {
 			return field, true

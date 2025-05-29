@@ -1,9 +1,7 @@
 package extract
 
 import (
-	"fmt"
 	"log"
-
 	"testing"
 )
 
@@ -20,32 +18,37 @@ var (
 // - Write positive/negative test for format, parse, validate IntType
 // - Write positive/negative test for format, parse, validate BoolType
 
-// testing the fieldmap gen
-// 
-// headers
-// "UserLoginName","AccountNumber","AccountType","RoutingNumber","CurrentBalance","AccountDescription"
-func TestDelimmitedFieldSetup(t *testing.T) {
+// Tests the creation of delimited Field types and Field Map
+// and their implicit functionality
+func TestDelimitted(t *testing.T) {
 
 	var fields []Field
 
-	// UserName
-	userName, _ := NewField("userName", StringType{}, WithIndex(0))
-	// UserEmail
-	email, _ := NewField("email", StringType{}, WithIndex(1))
-	// UserPhone
-	phone, _ := NewField("phone", StringType{}, WithIndex(2))
-	// Status
-	userStatus, _ := NewField("status", BoolType{}, WithIndex(3))
+	// string field test
+	t.Run("TestStringField", func(t *testing.T){
+		stringField, _ := NewField("stringField", StringType{}, WithIndex(0))
+		fields = append(fields, stringField)
 
-	// Assemble the fields
-	fields = append(fields, userName, email, phone, userStatus)
-	// Make field map
-	fm := NewFieldMap(fields...)
+		// make the field map
+		fm := NewFieldMap(fields...)
 
-	// get fields
-	userNameField, _ := fm.GetFieldByName("userName")
+		// retrieve field by name
+		gotByNameStringField, found := fm.GetFieldByName("stringField")
+		if ! found {
+			t.Error("Unable to retrieve stringField by name")
+		}
 
-	fmt.Println(userNameField.Type.Format("hello world"))
+		log.Println(gotByNameStringField.Type.Name())
+		if gotByNameStringField.Type.Name() != "string" {
+			t.Error("String field was not set up as a string")
+		}
+
+		log.Println(gotByNameStringField.Name)
+		if gotByNameStringField.Name != "stringField" {
+			t.Error("fields not set correctly on stringField")
+		}
+
+
+	})
 
 }
-
