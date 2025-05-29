@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/egotch/go-grizzly/extract"
-	"testing"
 )
 
 var (
